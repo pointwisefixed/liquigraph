@@ -16,6 +16,7 @@
 package org.liquigraph.core.configuration.validators;
 
 import org.junit.Test;
+import org.liquigraph.model.validators.MandatoryOptionValidator;
 
 import java.util.Collection;
 

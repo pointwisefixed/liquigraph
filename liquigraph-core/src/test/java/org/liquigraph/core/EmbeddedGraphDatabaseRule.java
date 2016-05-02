@@ -1,12 +1,12 @@
 /**
  * Copyright 2014-2016 the original author or authors.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,12 +16,12 @@
 package org.liquigraph.core;
 
 import org.junit.rules.ExternalResource;
+import org.liquigraph.connector.connection.ConnectionWrapper;
+import org.liquigraph.connector.driver.DriverManagerWrapper;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.kernel.internal.EmbeddedGraphDatabase;
 import org.neo4j.test.TestGraphDatabaseFactory;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -31,15 +31,21 @@ public class EmbeddedGraphDatabaseRule extends ExternalResource {
 
     private final String dbName;
     private final String uri;
-    private Connection connection;
+    private final boolean bolt;
+    private ConnectionWrapper connection;
     private GraphDatabaseService db;
-    
-    public EmbeddedGraphDatabaseRule(String name) {
+
+    public EmbeddedGraphDatabaseRule(String name, boolean bolt) {
         dbName = name + "-" + UUID.randomUUID().toString();
-        uri = "jdbc:neo4j:instance:" + dbName;
+        this.bolt = bolt;
+        if (!bolt) {
+            uri = "jdbc:neo4j:instance:" + dbName;
+        } else {
+            uri = "localhost:7492";
+        }
     }
-    
-    public Connection jdbcConnection() {
+
+    public ConnectionWrapper connection() {
         return connection;
     }
 
@@ -52,9 +58,9 @@ public class EmbeddedGraphDatabaseRule extends ExternalResource {
             db = new TestGraphDatabaseFactory().newImpermanentDatabase();
             Class.forName("org.neo4j.jdbc.Driver");
             Properties props = properties();
-            connection = DriverManager.getConnection(uri, props);
+            connection = DriverManagerWrapper.getJdbcConnection(uri, props);
             connection.setAutoCommit(false);
-        } catch (ClassNotFoundException | SQLException e) {
+        } catch (Exception e) {
             throw propagate(e);
         }
     }
@@ -65,7 +71,7 @@ public class EmbeddedGraphDatabaseRule extends ExternalResource {
                 connection.close();
             }
             db.shutdown();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw propagate(e);
         }
     }

@@ -17,7 +17,7 @@ package org.liquigraph.maven;
 
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.liquigraph.core.configuration.ConfigurationBuilder;
+import org.liquigraph.connector.configuration.ConfigurationBuilder;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

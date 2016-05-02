@@ -18,6 +18,7 @@ package org.liquigraph.core.configuration;
 import com.google.common.base.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
+import org.liquigraph.model.ExecutionContexts;
 
 import java.util.Collection;
 import java.util.Collections;

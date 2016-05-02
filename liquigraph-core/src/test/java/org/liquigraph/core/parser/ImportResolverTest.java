@@ -18,7 +18,7 @@ package org.liquigraph.core.parser;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.liquigraph.core.io.xml.ImportResolver;
+import org.liquigraph.connector.io.xml.ImportResolver;
 import org.w3c.dom.Node;
 
 import javax.xml.transform.OutputKeys;

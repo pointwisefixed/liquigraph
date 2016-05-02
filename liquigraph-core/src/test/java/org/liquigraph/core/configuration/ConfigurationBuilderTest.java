@@ -19,6 +19,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.liquigraph.connector.configuration.ConfigurationBuilder;
 
 import java.nio.file.Path;
 

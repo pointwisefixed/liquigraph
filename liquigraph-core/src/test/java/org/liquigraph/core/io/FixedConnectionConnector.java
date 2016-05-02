@@ -1,12 +1,12 @@
 /**
  * Copyright 2014-2016 the original author or authors.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,20 +15,21 @@
  */
 package org.liquigraph.core.io;
 
-import org.liquigraph.core.configuration.Configuration;
 
-import java.sql.Connection;
+import org.liquigraph.connector.GraphJdbcConnector;
+import org.liquigraph.connector.configuration.Configuration;
+import org.liquigraph.connector.connection.ConnectionWrapper;
 
-public class FixedConnectionConnector implements LiquigraphJdbcConnector {
+public class FixedConnectionConnector extends GraphJdbcConnector {
 
-    private final Connection connection;
+    private final ConnectionWrapper connection;
 
-    public FixedConnectionConnector(Connection connection) {
+    public FixedConnectionConnector(ConnectionWrapper connection) {
         this.connection = connection;
     }
 
     @Override
-    public Connection connect(Configuration configuration) {
+    public ConnectionWrapper getConnection(Configuration configuration) {
         return new KeepAliveConnection(connection);
     }
 

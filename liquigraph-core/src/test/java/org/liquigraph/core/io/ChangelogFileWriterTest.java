@@ -23,8 +23,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.liquigraph.core.model.Changeset;
-import org.liquigraph.core.model.Precondition;
+import org.liquigraph.connector.io.ChangelogFileWriter;
+import org.liquigraph.connector.io.ChangelogWriter;
+import org.liquigraph.connector.io.PreconditionPrinter;
+import org.liquigraph.model.Changeset;
+import org.liquigraph.model.Precondition;
 
 import java.io.File;
 import java.io.IOException;

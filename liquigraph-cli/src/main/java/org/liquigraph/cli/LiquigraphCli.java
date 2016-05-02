@@ -19,7 +19,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.google.common.collect.ImmutableList;
 import org.liquigraph.core.api.Liquigraph;
-import org.liquigraph.core.configuration.ConfigurationBuilder;
+import org.liquigraph.connector.configuration.ConfigurationBuilder;
 
 import java.io.File;
 import java.io.IOException;
@@ -116,7 +116,7 @@ public class LiquigraphCli {
             builder.withRunMode();
         }
 
-        new Liquigraph().runMigrations(
+        new Liquigraph(false).runMigrations(
                 builder.build()
         );
     }

@@ -1,12 +1,12 @@
 /**
  * Copyright 2014-2016 the original author or authors.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,8 +21,8 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.liquigraph.core.api.Liquigraph;
-import org.liquigraph.core.configuration.Configuration;
-import org.liquigraph.core.configuration.ConfigurationBuilder;
+import org.liquigraph.connector.configuration.Configuration;
+import org.liquigraph.connector.configuration.ConfigurationBuilder;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,14 +35,12 @@ public abstract class LiquigraphMojoBase extends AbstractMojo {
     /**
      * Current maven project
      */
-    @Parameter(property = "project", required = true, readonly = true)
-    MavenProject project;
+    @Parameter(property = "project", required = true, readonly = true) MavenProject project;
 
     /**
      * Classpath location of the master changelog file
      */
-    @Parameter(property = "changelog", required = true)
-    String changelog;
+    @Parameter(property = "changelog", required = true) String changelog;
 
     /**
      * Graph JDBC URI
@@ -53,20 +51,17 @@ public abstract class LiquigraphMojoBase extends AbstractMojo {
      *  <li>jdbc:neo4j:mem:name</li>
      * </ul>
      */
-    @Parameter(property = "jdbcUri", required = true)
-    String jdbcUri;
+    @Parameter(property = "jdbcUri", required = true) String jdbcUri;
 
     /**
      * Graph connection username.
      */
-    @Parameter(property = "username")
-    String username;
+    @Parameter(property = "username") String username;
 
     /**
      * Graph connection password.
      */
-    @Parameter(property = "password")
-    String password;
+    @Parameter(property = "password") String password;
 
     /**
      * Comma-separated execution context list.
@@ -74,25 +69,20 @@ public abstract class LiquigraphMojoBase extends AbstractMojo {
      * If contexts are defined, all Liquigraph changesets whose at least 1 declared context will match.
      * Please note that Liquigraph changesets that define no context will always match.
      */
-    @Parameter(property = "executionContexts", defaultValue = "")
-    String executionContexts = "";
+    @Parameter(property = "executionContexts", defaultValue = "") String executionContexts = "";
 
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException {
         String directory = project.getBuild().getDirectory();
 
         try {
-            Configuration configuration = withExecutionMode(new ConfigurationBuilder()
-                .withClassLoader(ProjectClassLoader.getClassLoader(project))
-                .withExecutionContexts(executionContexts(executionContexts))
-                .withMasterChangelogLocation(changelog)
-                .withUsername(username)
-                .withPassword(password)
-                .withUri(jdbcUri))
-                .build();
+            Configuration configuration = withExecutionMode(
+                new ConfigurationBuilder().withClassLoader(ProjectClassLoader.getClassLoader(project))
+                    .withExecutionContexts(executionContexts(executionContexts)).withMasterChangelogLocation(changelog)
+                    .withUsername(username).withPassword(password).withUri(jdbcUri)).build();
 
             getLog().info("Generating Cypher output file in directory: " + directory);
-            new Liquigraph().runMigrations(configuration);
+            new Liquigraph(false).runMigrations(configuration);
 
         } catch (Exception e) {
             throw new MojoExecutionException(e.getMessage(), e);

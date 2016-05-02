@@ -16,15 +16,15 @@
 package org.liquigraph.core.api;
 
 import org.junit.Test;
-import org.liquigraph.core.configuration.ExecutionContexts;
-import org.liquigraph.core.model.Changeset;
+import org.liquigraph.connector.api.ChangelogDiffMaker;
+import org.liquigraph.model.Changeset;
+import org.liquigraph.model.ExecutionContexts;
 
 import java.util.Collection;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.liquigraph.core.configuration.ExecutionContexts.DEFAULT_CONTEXT;
 
 public class ChangelogDiffMakerTest {
 
@@ -33,7 +33,7 @@ public class ChangelogDiffMakerTest {
     @Test
     public void diff_includes_all_latest_changesets_with_default_execution_context() {
         Collection<Changeset> changesets = diffMaker.computeChangesetsToInsert(
-            DEFAULT_CONTEXT,
+            ExecutionContexts.DEFAULT_CONTEXT,
             newArrayList(changeset("ID", "fbiville", "CREATE n"), changeset("ID2", "fbiville", "CREATE m")),
             newArrayList(changeset("ID", "fbiville", "CREATE n"))
         );
@@ -76,7 +76,7 @@ public class ChangelogDiffMakerTest {
     @Test
     public void diff_includes_run_always_changesets() {
         Collection<Changeset> changesets = diffMaker.computeChangesetsToInsert(
-            DEFAULT_CONTEXT,
+            ExecutionContexts.DEFAULT_CONTEXT,
             newArrayList(
                 changeset("ID", "fbiville", "CREATE n", "", true, false),
                 changeset("ID2", "fbiville", "CREATE m", "", true, false)
@@ -108,7 +108,7 @@ public class ChangelogDiffMakerTest {
     @Test
     public void diff_includes_run_on_change_changesets_that_never_ran_or_were_altered_since_last_execution() {
         Collection<Changeset> changesets = diffMaker.computeChangesetsToInsert(
-            DEFAULT_CONTEXT,
+            ExecutionContexts.DEFAULT_CONTEXT,
             newArrayList(
                 changeset("ID", "fbiville", "CREATE n2 RETURN n2", "baz", false, true),
                 changeset("ID2", "fbiville", "CREATE m", "foo", false, true)
@@ -140,7 +140,7 @@ public class ChangelogDiffMakerTest {
     @Test
     public void diff_includes_changesets_that_run_always_and_on_change() {
         Collection<Changeset> changesets = diffMaker.computeChangesetsToInsert(
-            DEFAULT_CONTEXT,
+            ExecutionContexts.DEFAULT_CONTEXT,
             newArrayList(
                 changeset("ID", "fbiville", "CREATE n", null, true, true),
                 changeset("ID2", "fbiville", "CREATE m2", null, true, true)

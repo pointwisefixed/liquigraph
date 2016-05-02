@@ -17,9 +17,9 @@ package org.liquigraph.core.validation;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
-import org.liquigraph.core.model.Changeset;
-import org.liquigraph.core.model.predicates.ChangesetById;
-import org.liquigraph.core.model.predicates.ChangesetRunOnChange;
+import org.liquigraph.model.Changeset;
+import org.liquigraph.model.predicates.ChangesetById;
+import org.liquigraph.model.predicates.ChangesetRunOnChange;
 
 import java.util.Collection;
 

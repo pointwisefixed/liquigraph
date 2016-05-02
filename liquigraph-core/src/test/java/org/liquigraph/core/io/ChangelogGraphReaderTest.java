@@ -17,8 +17,10 @@ package org.liquigraph.core.io;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.liquigraph.connector.connection.ConnectionWrapper;
+import org.liquigraph.connector.io.ChangelogGraphReader;
 import org.liquigraph.core.EmbeddedGraphDatabaseRule;
-import org.liquigraph.core.model.Changeset;
+import org.liquigraph.model.Changeset;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -28,16 +30,16 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.liquigraph.core.model.Checksums.checksum;
+import static org.liquigraph.model.Checksums.checksum;
 
 public class ChangelogGraphReaderTest {
 
-    @Rule public EmbeddedGraphDatabaseRule graph = new EmbeddedGraphDatabaseRule("neotest");
+    @Rule public EmbeddedGraphDatabaseRule graph = new EmbeddedGraphDatabaseRule("neotest", false);
     private ChangelogGraphReader reader = new ChangelogGraphReader();
 
     @Test
-    public void reads_changelog_from_graph_database() throws SQLException {
-        try (Connection connection = graph.jdbcConnection()) {
+    public void reads_changelog_from_graph_database() throws Exception {
+        try (ConnectionWrapper connection = graph.connection()) {
             String query = "MATCH n RETURN n";
             given_inserted_data(format(
                 "CREATE (:__LiquigraphChangelog)<-[:EXECUTED_WITHIN_CHANGELOG {time:1}]-" +
@@ -50,7 +52,7 @@ public class ChangelogGraphReaderTest {
                 connection
             );
 
-            Collection<Changeset> changesets = reader.read(graph.jdbcConnection());
+            Collection<Changeset> changesets = reader.read(graph.connection());
 
             assertThat(changesets).hasSize(1);
             Changeset changeset = changesets.iterator().next();
@@ -63,8 +65,8 @@ public class ChangelogGraphReaderTest {
     }
 
     @Test
-    public void reads_changeset_with_multiple_queries() throws SQLException {
-        try (Connection connection = graph.jdbcConnection()) {
+    public void reads_changeset_with_multiple_queries() throws Exception {
+        try (ConnectionWrapper connection = graph.connection()) {
             given_inserted_data(format(
                 "CREATE     (:__LiquigraphChangelog)<-[:EXECUTED_WITHIN_CHANGELOG {time:1}]-" +
                     "           (changeset:__LiquigraphChangeset {" +
@@ -82,7 +84,7 @@ public class ChangelogGraphReaderTest {
                 connection
             );
 
-            Collection<Changeset> changesets = reader.read(graph.jdbcConnection());
+            Collection<Changeset> changesets = reader.read(graph.connection());
 
             assertThat(changesets).hasSize(1);
             Changeset changeset = changesets.iterator().next();
@@ -94,7 +96,7 @@ public class ChangelogGraphReaderTest {
         }
     }
 
-    private void given_inserted_data(String query, Connection connection) throws SQLException {
+    private void given_inserted_data(String query, ConnectionWrapper connection) throws Exception {
         connection.createStatement().executeQuery(query);
     }
 }

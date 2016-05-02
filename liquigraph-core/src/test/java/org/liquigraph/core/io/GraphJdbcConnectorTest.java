@@ -19,8 +19,11 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.liquigraph.core.configuration.ConfigurationBuilder;
-import org.liquigraph.core.io.lock.LockableConnection;
+import org.liquigraph.connector.GraphJdbcConnector;
+import org.liquigraph.connector.LiquigraphConnector;
+import org.liquigraph.connector.configuration.ConfigurationBuilder;
+import org.liquigraph.connector.connection.ConnectionWrapper;
+import org.liquigraph.connector.io.lock.LockableConnection;
 import org.neo4j.jdbc.internal.Neo4jConnection;
 
 import java.sql.Connection;
@@ -34,11 +37,11 @@ public class GraphJdbcConnectorTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    private GraphJdbcConnector connector = new GraphJdbcConnector();
+    private LiquigraphConnector connector = new GraphJdbcConnector();
 
     @Test
-    public void instantiates_a_local_graph_database() throws SQLException {
-        try (Connection connection = connector.connect(new ConfigurationBuilder()
+    public void instantiates_a_local_graph_database() throws Exception {
+        try (ConnectionWrapper connection = connector.getConnection(new ConfigurationBuilder()
             .withRunMode()
             .withMasterChangelogLocation("changelog/changelog.xml")
             .withUri("jdbc:neo4j:mem")
@@ -51,8 +54,8 @@ public class GraphJdbcConnectorTest {
 
     @Test
     @Ignore("requires starting local Neo4j instance")
-    public void instantiates_a_remote_graph_database() throws SQLException {
-        try (Connection connection = connector.connect(new ConfigurationBuilder()
+    public void instantiates_a_remote_graph_database() throws Exception {
+        try (ConnectionWrapper connection = connector.getConnection(new ConfigurationBuilder()
             .withRunMode()
             .withMasterChangelogLocation("changelog.xml")
             .withUri("jdbc:neo4j://localhost:7474")
