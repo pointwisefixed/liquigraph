@@ -23,7 +23,6 @@ import org.liquigraph.model.SimpleQuery;
 import java.util.Collection;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static java.text.MessageFormat.format;
 
 public class PreconditionPrinter {
 
@@ -32,7 +31,7 @@ public class PreconditionPrinter {
             return newArrayList();
         }
         Collection<String> lines = newArrayList();
-        lines.add(format("//Liquigraph precondition[if-not-met: %s]", precondition.getPolicy()));
+        lines.add(String.format("//Liquigraph precondition[if-not-met: %s]", precondition.getPolicy()));
         lines.add(traverseQuery(precondition.getQuery()));
         return lines;
     }
@@ -48,6 +47,6 @@ public class PreconditionPrinter {
                 traverseQuery(compoundQuery.getSecondQuery())
             );
         }
-        throw new IllegalArgumentException(format("Unsupported query type <%s>", query.getClass().getName()));
+        throw new IllegalArgumentException(String.format("Unsupported query type <%s>", query.getClass().getName()));
     }
 }

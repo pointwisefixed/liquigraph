@@ -54,11 +54,13 @@ public class MandatoryOptionValidator {
         Collection<String> errors = new LinkedList<>();
         if (uri == null) {
             errors.add("'uri' should not be null");
-        } else if (!uri.startsWith(Driver.CON_PREFIX)) {
+        } else if (!uri.startsWith(Driver.CON_PREFIX) && !uri.startsWith("bolt://")) {
             errors.add(format("Invalid JDBC URI. Supported configurations:%n" +
                 "\t - jdbc:neo4j://<host>:<port>/%n" +
                 "\t - jdbc:neo4j:file:/path/to/db%n" +
-                "\t - jdbc:neo4j:mem or jdbc:neo4j:mem:name.%n" +
+                "\t - jdbc:neo4j:mem or jdbc:neo4j:mem:name.%n"
+                + "\t - or for Bolt Connections:%n"
+                + "\t - bolt://<host>:<port>%n" +
                 "Given: %s", uri));
         }
         return errors;

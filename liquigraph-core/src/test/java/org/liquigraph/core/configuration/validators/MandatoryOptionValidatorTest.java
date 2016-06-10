@@ -41,6 +41,8 @@ public class MandatoryOptionValidatorTest {
             "\t - jdbc:neo4j://<host>:<port>/\n" +
             "\t - jdbc:neo4j:file:/path/to/db\n" +
             "\t - jdbc:neo4j:mem or jdbc:neo4j:mem:name.\n" +
+                "\t - or for Bolt Connections:\n"
+                + "\t - bolt://<host>:<port>\n"+
             "Given: foo"
         );
     }

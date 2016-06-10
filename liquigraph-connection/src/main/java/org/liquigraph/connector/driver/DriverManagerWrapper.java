@@ -25,6 +25,7 @@ public class DriverManagerWrapper {
     }
 
     public static ConnectionWrapper getBoltConnection(Driver driver) {
-        return new BoltConnectionWrapper(driver.session());
+        return new BoltConnectionWrapper(driver);
     }
+
 }

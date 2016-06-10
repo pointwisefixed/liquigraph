@@ -1,4 +1,4 @@
-package org.liquigraph.connector.connectionctio;
+package org.liquigraph.connector.connection;
 
 import java.sql.Clob;
 

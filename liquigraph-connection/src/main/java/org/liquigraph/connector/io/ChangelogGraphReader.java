@@ -16,9 +16,12 @@
 package org.liquigraph.connector.io;
 
 import org.liquigraph.connector.connection.ConnectionWrapper;
+import org.liquigraph.connector.connection.NodeAdaptor;
 import org.liquigraph.connector.connection.ResultSetWrapper;
 import org.liquigraph.connector.connection.StatementWrapper;
 import org.liquigraph.model.Changeset;
+import org.neo4j.driver.internal.value.ListValue;
+import org.neo4j.driver.v1.Value;
 import org.neo4j.graphdb.Node;
 
 import java.sql.SQLException;
@@ -62,8 +65,8 @@ public class ChangelogGraphReader {
 
     @SuppressWarnings("unchecked")
     private Changeset mapRow(Object line) throws SQLException {
-        if (line instanceof Node) {
-            return changeset((Node) line);
+        if (line instanceof NodeAdaptor) {
+            return changeset((NodeAdaptor) line);
         }
         if (line instanceof Map) {
             return changeset((Map<String, Object>) line);
@@ -71,12 +74,12 @@ public class ChangelogGraphReader {
         throw new IllegalArgumentException(format("Unsupported row.\n\t" + "Cannot parse: %s", line));
     }
 
-    private Changeset changeset(Node node) {
+    private Changeset changeset(NodeAdaptor node) {
         Changeset changeset = new Changeset();
-        changeset.setAuthor(String.valueOf(node.getProperty("author")));
-        changeset.setId(String.valueOf(node.getProperty("id")));
-        changeset.setQueries(adaptQueries(node.getProperty("query")));
-        changeset.setChecksum(String.valueOf(node.getProperty("checksum")));
+        changeset.setAuthor(String.valueOf(node.getPropertyAsString("author")));
+        changeset.setId(String.valueOf(node.getPropertyAsString("id")));
+        changeset.setQueries(adaptQueries(node.get("query")));
+        changeset.setChecksum(String.valueOf(node.getPropertyAsString("checksum")));
         return changeset;
     }
 
@@ -90,6 +93,9 @@ public class ChangelogGraphReader {
     }
 
     private Collection<String> adaptQueries(Object rawQuery) {
+        if (rawQuery instanceof ListValue) {
+            return ((ListValue) rawQuery).asList(Value::asString);
+        }
         return unmodifiableCollection((Collection<String>) rawQuery);
     }
 }

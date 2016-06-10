@@ -20,6 +20,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.liquigraph.connector.connection.ConnectionWrapper;
+import org.liquigraph.connector.connection.NodeAdaptor;
 import org.liquigraph.connector.connection.ResultSetWrapper;
 import org.liquigraph.connector.connection.StatementWrapper;
 import org.liquigraph.connector.io.ChangelogGraphWriter;
@@ -31,9 +32,7 @@ import org.liquigraph.model.PreconditionErrorPolicy;
 import org.liquigraph.model.SimpleQuery;
 import org.liquigraph.model.exception.PreconditionNotMetException;
 import org.neo4j.graphdb.DynamicLabel;
-import org.neo4j.graphdb.Node;
 
-import java.sql.SQLException;
 import java.util.Collection;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -44,7 +43,7 @@ import static org.liquigraph.model.Checksums.checksum;
 
 public class ChangelogGraphWriterTest {
 
-    @Rule public EmbeddedGraphDatabaseRule jdbcGraph = new EmbeddedGraphDatabaseRule("neotest", false);
+    @Rule public EmbeddedGraphDatabaseRule jdbcGraph = new EmbeddedGraphDatabaseRule("neotest");
     @Rule public ExpectedException thrown = ExpectedException.none();
     private ChangelogGraphWriter writer;
 
@@ -143,7 +142,7 @@ public class ChangelogGraphWriterTest {
                 .executeQuery("MATCH (queries:__LiquigraphQuery) RETURN COLLECT(queries.query) AS query")) {
 
             assertThat(resultSet.next()).isTrue();
-            assertThat((Collection<String>) resultSet.getObject("query"))
+            assertThat(resultSet.getAsList("query"))
                 .containsExactly("CREATE (n:Human) RETURN n", "MATCH (n:Human) SET n.age = 42 RETURN n");
             assertThat(resultSet.next()).as("No more result in result set").isFalse();
         }
@@ -195,20 +194,19 @@ public class ChangelogGraphWriterTest {
     private static void assertThatChangesetIsStored(ResultSetWrapper resultSet) throws Exception {
         assertThat(resultSet.getLong("time")).isGreaterThan(0);
 
-        assertThat((Collection<String>) resultSet.getObject("queries"))
-            .containsExactly("CREATE (n: SomeNode {text:'yeah'})");
+        assertThat(resultSet.getAsList("queries")).containsExactly("CREATE (n: SomeNode {text:'yeah'})");
 
-        Node changeset = (Node) resultSet.getObject("changeset");
-        assertThat(changeset.getProperty("id")).isEqualTo("identifier");
-        assertThat(changeset.getProperty("author")).isEqualTo("fbiville");
-        assertThat(changeset.getProperty("checksum"))
+        NodeAdaptor changeset = (NodeAdaptor) resultSet.getObject("changeset");
+        assertThat(changeset.getPropertyAsString("id")).isEqualTo("identifier");
+        assertThat(changeset.getPropertyAsString("author")).isEqualTo("fbiville");
+        assertThat(changeset.getPropertyAsString("checksum"))
             .isEqualTo(checksum(singletonList("CREATE (n: SomeNode {text:'yeah'})")));
     }
 
     private static void assertThatQueryIsExecuted(ResultSetWrapper resultSet) throws Exception {
-        Node node = (Node) resultSet.getObject("node");
+        NodeAdaptor node = (NodeAdaptor) resultSet.getObject("node");
         assertThat(node.getLabels()).containsExactly(DynamicLabel.label("SomeNode"));
-        assertThat(node.getProperty("text")).isEqualTo("yeah");
+        assertThat(node.getPropertyAsString("text")).isEqualTo("yeah");
     }
 
     private static void assertThatQueryIsNotExecuted(ResultSetWrapper resultSet) throws Exception {

@@ -29,7 +29,6 @@ import java.util.Map;
 
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Iterables.get;
-import static java.text.MessageFormat.format;
 import static org.liquigraph.connector.io.PreconditionResult.NO_PRECONDITION;
 
 public class ChangelogGraphWriter implements ChangelogWriter {
@@ -64,7 +63,7 @@ public class ChangelogGraphWriter implements ChangelogWriter {
     /**
      * Runs the set of migrations against the configured database and inserts them
      * in the persisted migration graph.
-     *
+     * <p>
      * Please note that these two operations are performed in two separate transactions,
      * as user-defined migrations may operate on indices and those need be run apart
      * from data changes.
@@ -99,12 +98,12 @@ public class ChangelogGraphWriter implements ChangelogWriter {
                     case CONTINUE:
                         return StatementExecution.IGNORE_FAILURE;
                     case FAIL:
-                        throw new PreconditionNotMetException(
-                            format("Changeset <%s>: precondition query %s failed with policy <%s>. Aborting.",
+                        throw new PreconditionNotMetException(String
+                            .format("Changeset <%s>: precondition query %s failed with policy <%s>. Aborting.",
                                 changeset.getId(), precondition.getQuery(), precondition.getPolicy()));
                 }
             }
-            connection.commit(new IncludedTransaction());
+            connection.commit();
         } catch (Exception e) {
             throw propagate(e);
         }
@@ -151,7 +150,8 @@ public class ChangelogGraphWriter implements ChangelogWriter {
         }
     }
 
-    private void populateChangesetStatement(Changeset changeset, PreparedStatementWrapper changesetStmt) throws Exception {
+    private void populateChangesetStatement(Changeset changeset, PreparedStatementWrapper changesetStmt)
+        throws Exception {
         for (Integer key : changesetParameters(changeset).keySet()) {
             changesetStmt.setObject(key, changesetParameters(changeset).get(key));
         }

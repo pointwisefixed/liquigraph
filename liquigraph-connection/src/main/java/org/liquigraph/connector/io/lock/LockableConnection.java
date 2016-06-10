@@ -1,12 +1,12 @@
 /**
  * Copyright 2014-2016 the original author or authors.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,13 +16,10 @@
 package org.liquigraph.connector.io.lock;
 
 import org.liquigraph.connector.connection.*;
-import org.liquigraph.connector.connectionctio.ClobWrapper;
 import org.liquigraph.model.exception.LiquigraphLockException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.Exception;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
@@ -31,9 +28,9 @@ import java.util.concurrent.Executor;
 /**
  * This JDBC connection decorator writes a (:__LiquigraphLock)
  * Neo4j node in order to prevent concurrent executions.
- *
+ * <p>
  * Closing this connection will delete the created "Lock" node.
- *
+ * <p>
  * A shutdown hook is executed to remove the lock node if and
  * only if the connection has not been properly closed.
  */
@@ -83,6 +80,11 @@ public final class LockableConnection implements ConnectionWrapper {
         return delegate.createStatement();
     }
 
+    @Override
+    public ConnectionWrapper unwrap() {
+        return delegate;
+    }
+
     public void commit() throws Exception {
         delegate.commit();
     }
@@ -112,7 +114,8 @@ public final class LockableConnection implements ConnectionWrapper {
         return delegate.createArrayOf(typeName, elements);
     }
 
-    public PreparedStatementWrapper prepareStatement(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws Exception {
+    public PreparedStatementWrapper prepareStatement(String sql, int resultSetType, int resultSetConcurrency,
+        int resultSetHoldability) throws Exception {
         return delegate.prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
     }
 
@@ -181,7 +184,8 @@ public final class LockableConnection implements ConnectionWrapper {
         return delegate.isWrapperFor(iface);
     }
 
-    public StatementWrapper createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws Exception {
+    public StatementWrapper createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability)
+        throws Exception {
         return delegate.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability);
     }
 
@@ -201,7 +205,8 @@ public final class LockableConnection implements ConnectionWrapper {
         delegate.rollback(wrapper);
     }
 
-    public CallableStatementWrapper prepareCall(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws Exception {
+    public CallableStatementWrapper prepareCall(String sql, int resultSetType, int resultSetConcurrency,
+        int resultSetHoldability) throws Exception {
         return delegate.prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
     }
 
@@ -233,7 +238,8 @@ public final class LockableConnection implements ConnectionWrapper {
         return delegate.getHoldability();
     }
 
-    public PreparedStatementWrapper prepareStatement(String sql, int resultSetType, int resultSetConcurrency) throws Exception {
+    public PreparedStatementWrapper prepareStatement(String sql, int resultSetType, int resultSetConcurrency)
+        throws Exception {
         return delegate.prepareStatement(sql, resultSetType, resultSetConcurrency);
     }
 
@@ -253,7 +259,8 @@ public final class LockableConnection implements ConnectionWrapper {
         return delegate.isValid(timeout);
     }
 
-    public CallableStatementWrapper prepareCall(String sql, int resultSetType, int resultSetConcurrency) throws Exception {
+    public CallableStatementWrapper prepareCall(String sql, int resultSetType, int resultSetConcurrency)
+        throws Exception {
         return delegate.prepareCall(sql, resultSetType, resultSetConcurrency);
     }
 
@@ -293,24 +300,21 @@ public final class LockableConnection implements ConnectionWrapper {
             statement.execute();
             commit();
         } catch (Exception e) {
-            LOGGER.error(
-                "Cannot remove __LiquigraphLock during cleanup.",
-                e
-            );
+            LOGGER.error("Cannot remove __LiquigraphLock during cleanup.", e);
         }
     }
 
-    private  void acquireLock() {
+    private void acquireLock() {
         addShutdownHook();
         ensureLockUnicity();
         tryWriteLock();
     }
 
-    private  void addShutdownHook() {
+    private void addShutdownHook() {
         Runtime.getRuntime().addShutdownHook(task);
     }
 
-    private  void removeShutdownHook() {
+    private void removeShutdownHook() {
         Runtime.getRuntime().removeShutdownHook(task);
     }
 
@@ -318,31 +322,23 @@ public final class LockableConnection implements ConnectionWrapper {
         try (StatementWrapper statement = delegate.createStatement()) {
             statement.execute("CREATE CONSTRAINT ON (lock:__LiquigraphLock) ASSERT lock.name IS UNIQUE");
             commit();
-        }
-        catch (Exception e) {
-            throw new LiquigraphLockException(
-                "Could not ensure __LiquigraphLock unicity\n\t" +
-                    "Please make sure your instance is in a clean state\n\t" +
-                    "No more than 1 lock should be there simultaneously!",
-                e
-            );
+        } catch (Exception e) {
+            throw new LiquigraphLockException("Could not ensure __LiquigraphLock unicity\n\t" +
+                "Please make sure your instance is in a clean state\n\t" +
+                "No more than 1 lock should be there simultaneously!", e);
         }
     }
 
     private void tryWriteLock() {
-        try (PreparedStatementWrapper statement = delegate.prepareStatement(
-            "CREATE (:__LiquigraphLock {name:'John', uuid:{1}})")) {
+        try (PreparedStatementWrapper statement = delegate
+            .prepareStatement("CREATE (:__LiquigraphLock {name:'John', uuid:{1}})")) {
 
             statement.setString(1, uuid.toString());
             statement.execute();
             commit();
-        }
-        catch (Exception e) {
-            throw new LiquigraphLockException(
-                "Cannot create __LiquigraphLock lock\n\t" +
-                "Likely another Liquigraph execution is going on or has crashed.",
-                e
-            );
+        } catch (Exception e) {
+            throw new LiquigraphLockException("Cannot create __LiquigraphLock lock\n\t"
+                + "Likely another Liquigraph execution is going on or has crashed.", e);
         }
     }
 }

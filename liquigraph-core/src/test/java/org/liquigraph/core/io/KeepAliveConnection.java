@@ -16,7 +16,7 @@
 package org.liquigraph.core.io;
 
 import org.liquigraph.connector.connection.*;
-import org.liquigraph.connector.connectionctio.ClobWrapper;
+import org.liquigraph.connector.connection.ClobWrapper;
 
 import java.util.Map;
 import java.util.Properties;
@@ -25,7 +25,7 @@ import java.util.concurrent.Executor;
 /**
  * Prevents Liquigraph from closing the delegate
  * before tests can re-use it.
- *
+ * <p>
  * Related to https://github.com/neo4j-contrib/neo4j-jdbc/issues/55.
  */
 public class KeepAliveConnection implements ConnectionWrapper {
@@ -44,6 +44,11 @@ public class KeepAliveConnection implements ConnectionWrapper {
     @Override
     public StatementWrapper createStatement() throws Exception {
         return delegate.createStatement();
+    }
+
+    @Override
+    public ConnectionWrapper unwrap() {
+        return delegate;
     }
 
     @Override

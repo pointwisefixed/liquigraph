@@ -25,7 +25,6 @@ import org.liquigraph.model.PreconditionQuery;
 import org.liquigraph.model.SimpleQuery;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.text.MessageFormat.format;
 
 public class PreconditionExecutor {
 
@@ -49,7 +48,7 @@ public class PreconditionExecutor {
                 applyPrecondition(connection, compoundQuery.getSecondQuery())
             );
         }
-        throw new IllegalArgumentException(format("Unsupported query type <%s>", query.getClass().getName()));
+        throw new IllegalArgumentException(String.format("Unsupported query type <%s>", query.getClass().getName()));
     }
 
     private boolean execute(ConnectionWrapper connection, String query) {
@@ -57,7 +56,8 @@ public class PreconditionExecutor {
              ResultSetWrapper resultSet = statement.executeQuery(query)) {
 
             resultSet.next();
-            return resultSet.getBoolean("result");
+            boolean rst = resultSet.getBoolean("result");
+            return rst;
         }
         catch (Exception e) {
             throw new PreconditionExecutionException("%nError executing precondition:%n" +

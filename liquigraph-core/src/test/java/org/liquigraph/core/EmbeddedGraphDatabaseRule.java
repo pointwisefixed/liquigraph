@@ -17,12 +17,9 @@ package org.liquigraph.core;
 
 import org.junit.rules.ExternalResource;
 import org.liquigraph.connector.connection.ConnectionWrapper;
-import org.liquigraph.connector.driver.DriverManagerWrapper;
+import org.liquigraph.connector.settings.TestServerFactory;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.kernel.internal.EmbeddedGraphDatabase;
-import org.neo4j.test.TestGraphDatabaseFactory;
 
-import java.util.Properties;
 import java.util.UUID;
 
 import static com.google.common.base.Throwables.propagate;
@@ -31,17 +28,34 @@ public class EmbeddedGraphDatabaseRule extends ExternalResource {
 
     private final String dbName;
     private final String uri;
+
+    public boolean isBolt() {
+        return bolt;
+    }
+
     private final boolean bolt;
     private ConnectionWrapper connection;
     private GraphDatabaseService db;
 
-    public EmbeddedGraphDatabaseRule(String name, boolean bolt) {
+    public EmbeddedGraphDatabaseRule(String name) {
         dbName = name + "-" + UUID.randomUUID().toString();
-        this.bolt = bolt;
+        this.bolt = !hasJdbcDriver();
         if (!bolt) {
             uri = "jdbc:neo4j:instance:" + dbName;
         } else {
-            uri = "localhost:7492";
+            uri = "bolt://localhost:7887";
+        }
+    }
+
+    private static boolean hasJdbcDriver() {
+        try {
+            boolean hasJdbcDriver = Class.forName("org.neo4j.jdbc.Driver") != null;
+            boolean has2xKernelVersion = Class.forName("org.neo4j.kernel.Version") != null;
+            return has2xKernelVersion && hasJdbcDriver;
+        } catch (NoClassDefFoundError notFound) {
+            return false;
+        } catch (ClassNotFoundException e) {
+            return false;
         }
     }
 
@@ -55,11 +69,8 @@ public class EmbeddedGraphDatabaseRule extends ExternalResource {
 
     protected void before() {
         try {
-            db = new TestGraphDatabaseFactory().newImpermanentDatabase();
-            Class.forName("org.neo4j.jdbc.Driver");
-            Properties props = properties();
-            connection = DriverManagerWrapper.getJdbcConnection(uri, props);
-            connection.setAutoCommit(false);
+            db = TestServerFactory.getDb(uri, bolt);
+            connection = TestServerFactory.getTestServer(bolt, db, uri, dbName);
         } catch (Exception e) {
             throw propagate(e);
         }
@@ -76,9 +87,4 @@ public class EmbeddedGraphDatabaseRule extends ExternalResource {
         }
     }
 
-    private Properties properties() {
-        Properties props = new Properties();
-        props.put(dbName, db);
-        return props;
-    }
 }

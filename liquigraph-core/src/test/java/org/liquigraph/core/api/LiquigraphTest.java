@@ -26,23 +26,16 @@ import org.liquigraph.connector.connection.StatementWrapper;
 import org.liquigraph.core.EmbeddedGraphDatabaseRule;
 import org.liquigraph.core.io.FixedConnectionConnector;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class LiquigraphTest {
 
-    @Rule public EmbeddedGraphDatabaseRule jdbcGraph = new EmbeddedGraphDatabaseRule("neo", false);
+    @Rule public EmbeddedGraphDatabaseRule graphDb = new EmbeddedGraphDatabaseRule("neo");
     private Liquigraph liquigraph;
 
     @Before
     public void prepare() {
-        liquigraph = new Liquigraph(
-            // bypasses the configured URI
-            new FixedConnectionConnector(jdbcGraph.connection()));
+        liquigraph = new Liquigraph(new FixedConnectionConnector(graphDb.connection()));
     }
 
     @Test
@@ -50,9 +43,9 @@ public class LiquigraphTest {
         throws Exception {
         liquigraph.runMigrations(
             new ConfigurationBuilder().withRunMode().withMasterChangelogLocation("changelog/changelog-with-1-node.xml")
-                .withUri(jdbcGraph.uri()).build());
+                .withUri(graphDb.uri()).build());
 
-        try (ConnectionWrapper connection = jdbcGraph.connection()) {
+        try (ConnectionWrapper connection = graphDb.connection()) {
             try (StatementWrapper statement = connection.createStatement();
                 ResultSetWrapper resultSet = statement
                     .executeQuery("MATCH (human:Human {name: 'fbiville'}) RETURN human")) {
@@ -83,9 +76,9 @@ public class LiquigraphTest {
     public void runs_migrations_with_schema_changes() throws Exception {
         liquigraph.runMigrations(
             new ConfigurationBuilder().withRunMode().withMasterChangelogLocation("schema/schema-changelog.xml")
-                .withUri(jdbcGraph.uri()).build());
+                .withUri(graphDb.uri()).build());
 
-        try (ConnectionWrapper connection = jdbcGraph.connection();
+        try (ConnectionWrapper connection = graphDb.connection();
             StatementWrapper statement = connection.createStatement();
             ResultSetWrapper resultSet = statement.executeQuery("MATCH (foo:Foo {bar: 123}) RETURN foo")) {
 
@@ -98,9 +91,9 @@ public class LiquigraphTest {
     @Test
     public void runs_migrations_with_schema_changes_and_preconditions() throws Exception {
         liquigraph.runMigrations(new ConfigurationBuilder().withRunMode()
-            .withMasterChangelogLocation("schema/schema-preconditions-changelog.xml").withUri(jdbcGraph.uri()).build());
+            .withMasterChangelogLocation("schema/schema-preconditions-changelog.xml").withUri(graphDb.uri()).build());
 
-        try (ConnectionWrapper connection = jdbcGraph.connection();
+        try (ConnectionWrapper connection = graphDb.connection();
             StatementWrapper statement = connection.createStatement();
             ResultSetWrapper resultSet = statement.executeQuery("MATCH (foo:Foo {bar: 123}) RETURN foo")) {
 

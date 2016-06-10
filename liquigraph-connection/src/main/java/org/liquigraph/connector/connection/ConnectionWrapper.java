@@ -15,14 +15,14 @@
  */
 package org.liquigraph.connector.connection;
 
-import org.liquigraph.connector.connectionctio.ClobWrapper;
-
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
 public interface ConnectionWrapper extends AutoCloseable{
     StatementWrapper createStatement() throws Exception;
+
+    <T> T unwrap();
 
     void commit(TransactionWrapper wrapper) throws Exception;
 

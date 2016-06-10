@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class PreconditionExecutorTest {
 
-    @Rule public EmbeddedGraphDatabaseRule graphDatabaseRule = new EmbeddedGraphDatabaseRule("neotest", false);
+    @Rule public EmbeddedGraphDatabaseRule graphDatabaseRule = new EmbeddedGraphDatabaseRule("neotest");
 
     @Rule public ExpectedException thrown = ExpectedException.none();
 
@@ -97,11 +97,17 @@ public class PreconditionExecutorTest {
     @Test
     public void fails_with_invalid_cypher_query() throws Exception {
         thrown.expect(PreconditionExecutionException.class);
-        thrown.expectMessage("Error executing precondition:\n" +
-            "\tMake sure your query <toto> yields exactly one column named or aliased 'result'.\n" +
-            "\tActual cause: Error executing query toto\n" +
-            " with params {}");
-
+        if(!graphDatabaseRule.isBolt()) {
+            thrown.expectMessage("Error executing precondition:\n" +
+                "\tMake sure your query <toto> yields exactly one column named or aliased 'result'.\n" +
+                "\tActual cause: Error executing query toto\n" +
+                " with params {}");
+        }
+        else{
+            thrown.expectMessage("\n" + "Error executing precondition:\n"
+                + "\tMake sure your query <toto> yields exactly one column named or aliased 'result'.\n"
+                + "\tActual cause: Invalid input 't': expected <init> (line 1, column 1 (offset: 0))\n" + "\"toto\"\n ^");
+        }
         ConnectionWrapper connection = graphDatabaseRule.connection();
         try (StatementWrapper ignored = connection.createStatement()) {
             executor

@@ -31,7 +31,6 @@ import static com.google.common.base.Optional.absent;
 import static com.google.common.base.Optional.fromNullable;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
-import static java.text.MessageFormat.format;
 
 /**
  * Fluent {@link Configuration} builder.
@@ -177,6 +176,6 @@ public final class ConfigurationBuilder {
 
     private String formatErrors(Collection<String> errors) {
         String separator = "\n\t - ";
-        return format("%s%s", separator, Joiner.on(separator).join(errors));
+        return String.format("%s%s", separator, Joiner.on(separator).join(errors));
     }
 }

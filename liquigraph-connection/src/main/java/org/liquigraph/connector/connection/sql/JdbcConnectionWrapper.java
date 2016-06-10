@@ -1,7 +1,7 @@
 package org.liquigraph.connector.connection.sql;
 
 import org.liquigraph.connector.connection.*;
-import org.liquigraph.connector.connectionctio.ClobWrapper;
+import org.liquigraph.connector.connection.ClobWrapper;
 
 import java.sql.Connection;
 import java.sql.Statement;
@@ -27,6 +27,11 @@ public class JdbcConnectionWrapper implements ConnectionWrapper {
     public StatementWrapper createStatement() throws Exception {
         Statement st = connection.createStatement();
         return new StatementWrapper(st);
+    }
+
+    @Override
+    public  Connection unwrap() {
+        return connection;
     }
 
     @Override

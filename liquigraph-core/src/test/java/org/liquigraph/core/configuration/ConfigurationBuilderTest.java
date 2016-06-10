@@ -71,7 +71,9 @@ public class ConfigurationBuilderTest {
             "\t - Invalid JDBC URI. Supported configurations:\n" +
             "\t - jdbc:neo4j://<host>:<port>/\n" +
             "\t - jdbc:neo4j:file:/path/to/db\n" +
-            "\t - jdbc:neo4j:mem or jdbc:neo4j:mem:name.\n" +
+            "\t - jdbc:neo4j:mem or jdbc:neo4j:mem:name.\n"
+                + "\t - or for Bolt Connections:\n"
+                + "\t - bolt://<host>:<port>\n" +
             "Given: ssh://sorry@buddy"
         );
 
