@@ -1,11 +1,5 @@
 package org.liquigraph.connector.settings;
 
-/**
- * Created by wal-mart on 5/9/16.
- *
- * @author: wal-mart
- * @author: grosal3
- */
 import org.liquigraph.connector.connection.ConnectionWrapper;
 import org.liquigraph.connector.driver.DriverManagerWrapper;
 import org.neo4j.driver.v1.Config;

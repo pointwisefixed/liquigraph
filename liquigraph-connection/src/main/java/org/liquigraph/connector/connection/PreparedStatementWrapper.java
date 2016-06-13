@@ -8,12 +8,6 @@ import java.sql.PreparedStatement;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by wal-mart on 4/28/16.
- *
- * @author: wal-mart
- * @author: grosal3
- */
 public class PreparedStatementWrapper implements AutoCloseable {
 
     private Statement statement;

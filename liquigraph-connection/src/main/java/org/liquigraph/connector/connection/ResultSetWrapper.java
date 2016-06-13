@@ -11,12 +11,6 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Map;
 
-/**
- * Created by wal-mart on 4/28/16.
- *
- * @author: wal-mart
- * @author: grosal3
- */
 public class ResultSetWrapper implements AutoCloseable {
 
     private ResultSet resultSet;

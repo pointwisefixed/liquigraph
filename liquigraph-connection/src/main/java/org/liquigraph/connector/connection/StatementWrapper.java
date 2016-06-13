@@ -5,12 +5,6 @@ import org.neo4j.driver.v1.Transaction;
 
 import java.sql.Statement;
 
-/**
- * Created by wal-mart on 4/28/16.
- *
- * @author: wal-mart
- * @author: grosal3
- */
 public class StatementWrapper implements AutoCloseable {
 
     private Statement statement;

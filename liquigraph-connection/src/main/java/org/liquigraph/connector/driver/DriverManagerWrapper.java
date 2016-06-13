@@ -9,12 +9,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
-/**
- * Created by wal-mart on 4/28/16.
- *
- * @author: wal-mart
- * @author: grosal3
- */
 public class DriverManagerWrapper {
     public static ConnectionWrapper getJdbcConnection(String uri) throws SQLException {
         return new JdbcConnectionWrapper(DriverManager.getConnection(uri));

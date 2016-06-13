@@ -10,12 +10,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
-/**
- * Created by wal-mart on 4/28/16.
- *
- * @author: wal-mart
- * @author: grosal3
- */
 public class BoltConnectionWrapper implements ConnectionWrapper {
 
     private final Driver driver;
